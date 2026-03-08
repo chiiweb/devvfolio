@@ -1,5 +1,6 @@
 import { GitHubRepo } from "@/components/ProjectCard";
 import type { Theme, CustomThemeColors } from "@/components/ThemeSelector";
+import JSZip from "jszip";
 
 interface PortfolioData {
   username: string;
@@ -15,6 +16,7 @@ interface PortfolioData {
   skills: string[];
 }
 
+// ─── Theme CSS (variables only, for inline single-file) ───────────────────────
 const themeCSS: Record<Exclude<Theme, "custom">, string> = {
   default: `
     :root { --bg:#0d1117;--fg:#b5f5b5;--card:#161b24;--primary:#22c55e;--muted:#64748b;--border:#21262d;--primary-fg:#0d1117;--gradient:linear-gradient(135deg,#22c55e,#06b6d4); }
@@ -54,12 +56,12 @@ const themeCSS: Record<Exclude<Theme, "custom">, string> = {
   `,
 };
 
-const languageColors: Record<string, string> = {
+export const languageColors: Record<string, string> = {
   TypeScript: "#3178c6", JavaScript: "#f1e05a", Python: "#3572A5",
   Rust: "#dea584", Go: "#00add8", Java: "#b07219", "C++": "#f34b7d",
   C: "#555555", Ruby: "#701516", Swift: "#fa7343", Kotlin: "#A97BFF",
   PHP: "#4f5d95", CSS: "#563d7c", HTML: "#e34c26", Shell: "#89e051",
-  Vue: "#41b883", Dart: "#00b4ab",
+  Vue: "#41b883", Dart: "#00b4ab", "C#": "#178600",
 };
 
 function buildCustomCSS(colors: CustomThemeColors): string {
@@ -74,7 +76,103 @@ function buildCustomCSS(colors: CustomThemeColors): string {
   `;
 }
 
-export function generatePortfolioHTML(data: PortfolioData, theme: Theme, customColors?: CustomThemeColors): string {
+// ─── Shared CSS (used in both single-file and multi-file exports) ─────────────
+function buildSharedCSS(themeBlock: string): string {
+  return `/* ============================================================
+   DevFolio — Exported Portfolio Stylesheet
+   ============================================================ */
+${themeBlock}
+*, *::before, *::after { box-sizing:border-box;margin:0;padding:0; }
+a { color:inherit;text-decoration:none; }
+.container { max-width:960px;margin:0 auto;padding:0 20px; }
+nav { border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:10; }
+.nav-brand { font-weight:700;font-size:14px;letter-spacing:-0.5px; }
+.nav-user { font-size:12px;color:var(--muted); }
+.hero { padding:48px 0 32px; }
+.hero-inner { display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap; }
+.avatar { width:96px;height:96px;border-radius:20px;border:3px solid var(--primary);object-fit:cover;flex-shrink:0; }
+.hero-info h1 { font-size:2rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2; }
+.hero-info .handle { color:var(--muted);font-size:14px;margin-top:4px; }
+.hero-info .bio { margin-top:8px;font-size:14px;line-height:1.6;color:var(--fg);opacity:.85;max-width:500px; }
+.meta-links { display:flex;flex-wrap:wrap;gap:16px;margin-top:12px; }
+.meta-links a,.meta-links span { font-size:13px;color:var(--muted); }
+.meta-links a:hover { color:var(--primary); }
+.stats { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:24px 0; }
+.stat { background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;transition:transform .2s,border-color .2s; }
+.stat:hover { transform:translateY(-2px);border-color:var(--primary); }
+.stat-value { font-size:1.75rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+.stat-label { font-size:11px;color:var(--muted);margin-top:4px; }
+.section { padding:24px 0; }
+.section-title { font-size:1.1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px; }
+.section-title::before { content:'';display:inline-block;width:3px;height:18px;background:var(--gradient);border-radius:2px; }
+.skills { display:flex;flex-wrap:wrap;gap:8px; }
+.skill { padding:6px 14px;border-radius:9999px;border:1px solid var(--primary);color:var(--primary);font-size:12px;font-weight:600;transition:background .2s; }
+.skill:hover { background:color-mix(in srgb,var(--primary) 12%,transparent); }
+.repos { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px; }
+.card { background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .2s,transform .2s,box-shadow .2s;display:block; }
+.card:hover { border-color:var(--primary);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.3); }
+.repo-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:8px; }
+.repo-name { font-weight:700;font-size:14px;color:var(--fg);transition:color .2s; }
+.card:hover .repo-name { color:var(--primary); }
+.live-btn { font-size:11px;color:var(--primary);border:1px solid var(--primary);padding:2px 8px;border-radius:6px;transition:background .2s; }
+.live-btn:hover { background:color-mix(in srgb,var(--primary) 12%,transparent); }
+.repo-desc { font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+.topics { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px; }
+.topic { background:color-mix(in srgb,var(--primary) 15%,transparent);color:var(--primary);border:1px solid color-mix(in srgb,var(--primary) 30%,transparent);padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:600; }
+.repo-footer { display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted); }
+.repo-stats { display:flex;align-items:center;gap:10px; }
+.lang-dot { display:inline-block;width:10px;height:10px;border-radius:50%; }
+.updated { font-size:10px; }
+footer { border-top:1px solid var(--border);margin-top:48px;padding:20px 0;text-align:center;font-size:12px;color:var(--muted); }
+/* Scroll to top button */
+#scrollTop { position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:50%;background:var(--gradient);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:transform .2s,box-shadow .2s;z-index:100; }
+#scrollTop:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.5); }
+#scrollTop svg { width:18px;height:18px;fill:var(--primary-fg); }
+#scrollTop.visible { display:flex; }
+/* Back-to-top animation */
+@keyframes fade-in { from { opacity:0;transform:translateY(8px); } to { opacity:1;transform:translateY(0); } }
+.hero-inner,.stats,.section { animation:fade-in .5s ease both; }
+@media (max-width:600px) {
+  .stats { grid-template-columns:repeat(3,1fr);gap:8px; }
+  .repos { grid-template-columns:1fr; }
+  .hero-info h1 { font-size:1.5rem; }
+}`;
+}
+
+// ─── Shared JS ────────────────────────────────────────────────────────────────
+const sharedJS = `// DevFolio — Portfolio Script
+(function () {
+  // Scroll to top button
+  var btn = document.getElementById('scrollTop');
+  if (btn) {
+    window.addEventListener('scroll', function () {
+      btn.classList.toggle('visible', window.scrollY > 300);
+    });
+    btn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // Intersection Observer — fade-in on scroll
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.card, .stat, .skill').forEach(function (el) {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  }
+})();
+`;
+
+// ─── HTML body builder (shared between single-file and multi-file) ────────────
+function buildHTMLBody(data: PortfolioData): string {
   const featured = data.pinnedRepos.length > 0
     ? data.repos.filter((r) => data.pinnedRepos.includes(r.id))
     : data.repos.slice(0, 6);
@@ -82,19 +180,15 @@ export function generatePortfolioHTML(data: PortfolioData, theme: Theme, customC
   const totalStars = data.repos.reduce((s, r) => s + r.stargazers_count, 0);
   const totalForks = data.repos.reduce((s, r) => s + r.forks_count, 0);
 
-  const resolvedCSS = theme === "custom" && customColors
-    ? buildCustomCSS(customColors)
-    : themeCSS[theme as Exclude<Theme, "custom">] ?? themeCSS.default;
-
   const repoCards = featured.map((repo) => {
     const color = repo.language ? (languageColors[repo.language] || "#8b949e") : null;
     const topics = (repo.topics || []).slice(0, 4).map((t) => `<span class="topic">${t}</span>`).join("");
     const updated = new Date(repo.updated_at).toLocaleDateString("en-US", { month: "short", year: "numeric" });
     return `
-      <a href="${repo.html_url}" target="_blank" class="card repo-card">
+      <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="card repo-card">
         <div class="repo-header">
           <span class="repo-name">${repo.name}</span>
-          ${repo.homepage ? `<a href="${repo.homepage}" target="_blank" class="live-btn">↗ Live</a>` : ""}
+          ${repo.homepage ? `<a href="${repo.homepage}" target="_blank" rel="noopener noreferrer" class="live-btn" onclick="event.stopPropagation()">↗ Live</a>` : ""}
         </div>
         <p class="repo-desc">${repo.description || "No description."}</p>
         ${topics ? `<div class="topics">${topics}</div>` : ""}
@@ -110,67 +204,15 @@ export function generatePortfolioHTML(data: PortfolioData, theme: Theme, customC
   }).join("");
 
   const skillBadges = data.skills.map((s) => `<span class="skill">${s}</span>`).join("");
+
   const socialLinks = [
-    data.website ? `<a href="${data.website}" target="_blank">🔗 Website</a>` : "",
-    data.twitter ? `<a href="https://twitter.com/${data.twitter.replace("@", "")}" target="_blank">🐦 Twitter</a>` : "",
-    data.linkedin ? `<a href="${data.linkedin.startsWith("http") ? data.linkedin : "https://" + data.linkedin}" target="_blank">💼 LinkedIn</a>` : "",
-    `<a href="https://github.com/${data.username}" target="_blank">🐙 GitHub</a>`,
+    data.website ? `<a href="${data.website}" target="_blank" rel="noopener noreferrer">🔗 Website</a>` : "",
+    data.twitter ? `<a href="https://twitter.com/${data.twitter.replace("@", "")}" target="_blank" rel="noopener noreferrer">𝕏 Twitter</a>` : "",
+    data.linkedin ? `<a href="${data.linkedin.startsWith("http") ? data.linkedin : "https://" + data.linkedin}" target="_blank" rel="noopener noreferrer">💼 LinkedIn</a>` : "",
+    `<a href="https://github.com/${data.username}" target="_blank" rel="noopener noreferrer">🐙 GitHub</a>`,
   ].filter(Boolean).join("");
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>${data.name} — Portfolio</title>
-  <meta name="description" content="${data.bio}"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-  <style>
-    ${resolvedCSS}
-    *, *::before, *::after { box-sizing:border-box;margin:0;padding:0; }
-    a { color:inherit;text-decoration:none; }
-    .container { max-width:960px;margin:0 auto;padding:0 20px; }
-    nav { border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between; }
-    .nav-brand { font-weight:700;font-size:14px;letter-spacing:-0.5px; }
-    .nav-user { font-size:12px;color:var(--muted); }
-    .hero { padding:48px 0 32px; }
-    .hero-inner { display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap; }
-    .avatar { width:96px;height:96px;border-radius:20px;border:3px solid var(--primary);object-fit:cover;flex-shrink:0; }
-    .hero-info h1 { font-size:2rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2; }
-    .hero-info .handle { color:var(--muted);font-size:14px;margin-top:4px; }
-    .hero-info .bio { margin-top:8px;font-size:14px;line-height:1.6;color:var(--fg);opacity:.85;max-width:500px; }
-    .meta-links { display:flex;flex-wrap:wrap;gap:16px;margin-top:12px; }
-    .meta-links a,.meta-links span { font-size:13px;color:var(--muted); }
-    .meta-links a:hover { color:var(--primary); }
-    .stats { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:24px 0; }
-    .stat { background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center; }
-    .stat-value { font-size:1.75rem;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
-    .stat-label { font-size:11px;color:var(--muted);margin-top:4px; }
-    .section { padding:24px 0; }
-    .section-title { font-size:1.1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px; }
-    .section-title::before { content:'';display:inline-block;width:3px;height:18px;background:var(--gradient);border-radius:2px; }
-    .skills { display:flex;flex-wrap:wrap;gap:8px; }
-    .skill { padding:6px 14px;border-radius:9999px;border:1px solid var(--primary);color:var(--primary);font-size:12px;font-weight:600; }
-    .repos { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px; }
-    .card { background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .2s,transform .2s;display:block; }
-    .card:hover { border-color:var(--primary);transform:translateY(-2px); }
-    .repo-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:8px; }
-    .repo-name { font-weight:700;font-size:14px;color:var(--fg); }
-    .live-btn { font-size:11px;color:var(--primary);border:1px solid var(--primary);padding:2px 8px;border-radius:6px; }
-    .repo-desc { font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
-    .topics { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px; }
-    .topic { background:color-mix(in srgb,var(--primary) 15%,transparent);color:var(--primary);border:1px solid color-mix(in srgb,var(--primary) 30%,transparent);padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:600; }
-    .repo-footer { display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted); }
-    .repo-stats { display:flex;align-items:center;gap:10px; }
-    .lang-dot { display:inline-block;width:10px;height:10px;border-radius:50%; }
-    .updated { font-size:10px; }
-    footer { border-top:1px solid var(--border);margin-top:48px;padding:20px 0;text-align:center;font-size:12px;color:var(--muted); }
-    @media (max-width:600px) { .stats { grid-template-columns:repeat(3,1fr);gap:8px; } .repos { grid-template-columns:1fr; } .hero-info h1 { font-size:1.5rem; } }
-  </style>
-</head>
-<body>
-  <nav>
+  return `  <nav>
     <span class="nav-brand">🖥 DevFolio</span>
     <span class="nav-user">@${data.username}</span>
   </nav>
@@ -198,17 +240,118 @@ export function generatePortfolioHTML(data: PortfolioData, theme: Theme, customC
     <div class="section"><div class="section-title">Featured Projects</div><div class="repos">${repoCards}</div></div>
   </div>
   <footer>Built with ❤ using <strong>DevFolio</strong> · ${new Date().getFullYear()}</footer>
+  <button id="scrollTop" title="Back to top" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg>
+  </button>`;
+}
+
+// ─── Single-file export (everything inlined) ──────────────────────────────────
+export function generatePortfolioHTML(data: PortfolioData, theme: Theme, customColors?: CustomThemeColors): string {
+  const resolvedThemeCSS = theme === "custom" && customColors
+    ? buildCustomCSS(customColors)
+    : themeCSS[theme as Exclude<Theme, "custom">] ?? themeCSS.default;
+
+  const fullCSS = buildSharedCSS(resolvedThemeCSS);
+  const body = buildHTMLBody(data);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${data.name} — Portfolio</title>
+  <meta name="description" content="${data.bio}"/>
+  <meta property="og:title" content="${data.name} — Portfolio"/>
+  <meta property="og:description" content="${data.bio}"/>
+  <meta property="og:type" content="website"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>${fullCSS}</style>
+</head>
+<body>
+${body}
+<script>${sharedJS}</script>
 </body>
 </html>`;
 }
 
+// ─── Multi-file export as ZIP (index.html + style.css + script.js) ────────────
+export async function generatePortfolioZip(
+  data: PortfolioData,
+  theme: Theme,
+  customColors?: CustomThemeColors
+): Promise<Blob> {
+  const resolvedThemeCSS = theme === "custom" && customColors
+    ? buildCustomCSS(customColors)
+    : themeCSS[theme as Exclude<Theme, "custom">] ?? themeCSS.default;
+
+  const fullCSS = buildSharedCSS(resolvedThemeCSS);
+  const body = buildHTMLBody(data);
+
+  const indexHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${data.name} — Portfolio</title>
+  <meta name="description" content="${data.bio}"/>
+  <meta property="og:title" content="${data.name} — Portfolio"/>
+  <meta property="og:description" content="${data.bio}"/>
+  <meta property="og:type" content="website"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+${body}
+<script src="script.js"></script>
+</body>
+</html>`;
+
+  const zip = new JSZip();
+  zip.file("index.html", indexHTML);
+  zip.file("style.css", fullCSS);
+  zip.file("script.js", sharedJS);
+  zip.file("README.md", `# ${data.name} — Portfolio
+
+Generated with [DevFolio](https://devvfolio.lovable.app)
+
+## Files
+- \`index.html\` — Main page
+- \`style.css\` — All styles
+- \`script.js\` — Interactive behaviour
+
+## Hosting on GitHub Pages
+1. Push these 3 files to a GitHub repository
+2. Go to **Settings → Pages**
+3. Set **Source** to \`main\` branch, \`/ (root)\`
+4. Your portfolio will be live at \`https://yourusername.github.io/repo-name\`
+
+## Hosting on Netlify
+1. Drag and drop the folder at [netlify.com/drop](https://app.netlify.com/drop)
+2. Done — live in seconds!
+`);
+
+  return zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+}
+
+// ─── Download helpers ─────────────────────────────────────────────────────────
 export function downloadPortfolio(data: PortfolioData, theme: Theme, customColors?: CustomThemeColors) {
   const html = generatePortfolioHTML(data, theme, customColors);
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  triggerDownload(blob, `${data.username}-portfolio.html`);
+}
+
+export async function downloadPortfolioZip(data: PortfolioData, theme: Theme, customColors?: CustomThemeColors) {
+  const blob = await generatePortfolioZip(data, theme, customColors);
+  triggerDownload(blob, `${data.username}-portfolio.zip`);
+}
+
+function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${data.username}-portfolio.html`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

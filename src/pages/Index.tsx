@@ -6,7 +6,7 @@ import { ProjectCard, GitHubRepo } from "@/components/ProjectCard";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { SkillsEditor } from "@/components/SkillsEditor";
 import { RepoPinSelector } from "@/components/RepoPinSelector";
-import { downloadPortfolio } from "@/lib/exportPortfolio";
+import { downloadPortfolio, downloadPortfolioZip } from "@/lib/exportPortfolio";
 import { toast } from "@/hooks/use-toast";
 import {
   Github,
@@ -193,7 +193,7 @@ function StatsBanner({ statsVisible, statsRef }: { statsVisible: boolean; statsR
   );
 }
 
-// Scroll reveal hook
+// Scroll reveal hook — empty deps so it only runs once on mount
 function useScrollReveal() {
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -208,7 +208,7 @@ function useScrollReveal() {
     const els = document.querySelectorAll(".reveal");
     els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  });
+  }, []); // ✅ only once
 }
 
 export default function Index() {
@@ -222,6 +222,7 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<"github" | "theme" | "profile" | "skills" | "preview">("github");
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingZip, setExportingZip] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -330,6 +331,19 @@ export default function Index() {
       toast({ title: "Export failed", description: "Something went wrong.", variant: "destructive" });
     } finally {
       setTimeout(() => setExporting(false), 800);
+    }
+  }, [portfolio, theme, customColors]);
+
+  const handleExportZip = useCallback(async () => {
+    if (!portfolio) return;
+    setExportingZip(true);
+    try {
+      await downloadPortfolioZip({ ...portfolio, linkedin: portfolio.linkedin || "" }, theme, customColors);
+      toast({ title: "✅ ZIP exported!", description: `${portfolio.username}-portfolio.zip downloaded with index.html, style.css & script.js.` });
+    } catch {
+      toast({ title: "ZIP export failed", description: "Something went wrong.", variant: "destructive" });
+    } finally {
+      setTimeout(() => setExportingZip(false), 800);
     }
   }, [portfolio, theme, customColors]);
 
@@ -827,14 +841,28 @@ export default function Index() {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg gradient-bg text-primary-foreground text-xs font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-foreground text-xs font-semibold hover:border-primary/50 disabled:opacity-70 transition-all"
+            title="Download single HTML file"
           >
             {exporting ? (
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
             ) : (
               <Download className="w-3.5 h-3.5" />
             )}
-            Export HTML
+            <span className="hidden sm:inline">HTML</span>
+          </button>
+          <button
+            onClick={handleExportZip}
+            disabled={exportingZip}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg gradient-bg text-primary-foreground text-xs font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow"
+            title="Download ZIP with separate HTML, CSS and JS files (best for GitHub Pages)"
+          >
+            {exportingZip ? (
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+            ) : (
+              <FileCode className="w-3.5 h-3.5" />
+            )}
+            <span className="hidden sm:inline">ZIP</span>
           </button>
         </div>
       </nav>
@@ -1133,7 +1161,7 @@ export default function Index() {
                   {portfolio.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="px-3 py-1 rounded-full text-xs font-mono font-semibold border border-primary/30 bg-primary/8 text-primary"
+                      className="px-3 py-1 rounded-full text-xs font-mono font-semibold border border-primary/30 bg-primary/10 text-primary"
                     >
                       {skill}
                     </span>
@@ -1170,21 +1198,35 @@ export default function Index() {
               <div>
                 <h3 className="font-bold text-foreground text-lg">Ready to publish?</h3>
                 <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-relaxed">
-                  Download a self-contained HTML file you can host anywhere — Netlify, GitHub Pages, Vercel.
+                  Choose your export format — single HTML file or a ZIP with separate HTML, CSS &amp; JS for GitHub Pages.
                 </p>
               </div>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <button
                   onClick={handleExport}
                   disabled={exporting}
-                  className="flex items-center gap-2 px-7 py-3 rounded-xl gradient-bg text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow hover:scale-105"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-foreground text-sm font-semibold hover:border-primary/50 disabled:opacity-70 transition-all hover:scale-105"
+                  title="Single self-contained HTML file"
                 >
                   {exporting ? (
-                    <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                    <span className="w-4 h-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
                   ) : (
                     <Download className="w-4 h-4" />
                   )}
                   Download HTML
+                </button>
+                <button
+                  onClick={handleExportZip}
+                  disabled={exportingZip}
+                  className="flex items-center gap-2 px-7 py-3 rounded-xl gradient-bg text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow hover:scale-105"
+                  title="ZIP with index.html + style.css + script.js — ideal for GitHub Pages"
+                >
+                  {exportingZip ? (
+                    <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                  ) : (
+                    <FileCode className="w-4 h-4" />
+                  )}
+                  Download ZIP (GitHub Pages)
                 </button>
                 <button
                   onClick={handleCopyLink}
