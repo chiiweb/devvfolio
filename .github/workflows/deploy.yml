@@ -28,13 +28,13 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build
-        # Replace YOUR_REPO_NAME below with your actual GitHub repository name
-        # e.g. if your repo is github.com/johndoe/devfolio → VITE_BASE_PATH=/devfolio/
+        # Automatically uses the repo name as the base path, e.g. /devfolio/
+        # Works for both user/org pages (github.com/user/repo) automatically.
         env:
-          VITE_BASE_PATH: /YOUR_REPO_NAME/
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: npm run build
 
       - name: Upload artifact
