@@ -214,6 +214,10 @@ function useScrollReveal() {
 export default function Index() {
   const [step, setStep] = useState<Step>("landing");
   const [theme, setTheme] = useState<Theme>("default");
+  const [customColors, setCustomColors] = useState<CustomThemeColors>({
+    bg: "#0d1117", fg: "#c9d1d9", primary: "#58a6ff",
+    accent: "#79c0ff", card: "#161b22", border: "#30363d",
+  });
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [activeTab, setActiveTab] = useState<"github" | "theme" | "profile" | "skills" | "preview">("github");
   const [copied, setCopied] = useState(false);
@@ -241,11 +245,59 @@ export default function Index() {
   // Scroll reveal
   useScrollReveal();
 
+  // Inject custom theme CSS variables into document root
+  useEffect(() => {
+    if (theme !== "custom") return;
+    const hexToHsl = (hex: string): string => {
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+    };
+    const root = document.documentElement;
+    if (customColors.bg.length === 7) root.style.setProperty("--background", hexToHsl(customColors.bg));
+    if (customColors.fg.length === 7) root.style.setProperty("--foreground", hexToHsl(customColors.fg));
+    if (customColors.primary.length === 7) {
+      root.style.setProperty("--primary", hexToHsl(customColors.primary));
+      root.style.setProperty("--ring", hexToHsl(customColors.primary));
+    }
+    if (customColors.accent.length === 7) root.style.setProperty("--accent", hexToHsl(customColors.accent));
+    if (customColors.card.length === 7) {
+      root.style.setProperty("--card", hexToHsl(customColors.card));
+      root.style.setProperty("--muted", hexToHsl(customColors.card));
+    }
+    if (customColors.border.length === 7) {
+      root.style.setProperty("--border", hexToHsl(customColors.border));
+      root.style.setProperty("--input", hexToHsl(customColors.border));
+    }
+    return () => {
+      ["--background","--foreground","--primary","--ring","--accent","--card","--muted","--border","--input"]
+        .forEach((v) => root.style.removeProperty(v));
+    };
+  }, [theme, customColors]);
+
   const themeClass =
     theme === "default" ? "" :
     theme === "minimal" ? "theme-minimal" :
     theme === "cyberpunk" ? "theme-cyberpunk" :
     theme === "sunset" ? "theme-sunset" :
+    theme === "forest" ? "theme-forest" :
+    theme === "arctic" ? "theme-arctic" :
+    theme === "midnight" ? "theme-midnight" :
+    theme === "volcano" ? "theme-volcano" :
+    theme === "custom" ? "" :
     "theme-ocean";
 
   const handleImport = (
