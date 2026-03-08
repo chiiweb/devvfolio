@@ -986,30 +986,18 @@ export default function Index() {
           <div className="space-y-6 max-w-2xl animate-fade-up">
             <div>
               <h2 className="font-bold text-lg text-foreground">Choose a Theme</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Your entire portfolio changes instantly — 5 themes available</p>
+              <p className="text-xs text-muted-foreground mt-0.5">9 preset themes + build your own custom theme</p>
             </div>
-            <ThemeSelector currentTheme={theme} onChange={setTheme} />
-            <div className="p-5 rounded-xl border border-border card-bg">
-              <p className="text-xs font-mono text-muted-foreground mb-3">// Live preview</p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl gradient-bg animate-pulse-glow shrink-0" />
-                  <div className="space-y-1.5 flex-1">
-                    <div className="h-2.5 w-3/4 rounded-full gradient-bg opacity-80" />
-                    <div className="h-1.5 w-1/2 rounded-full bg-muted" />
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-3">
-                  {[0.6, 0.4, 0.3].map((w, i) => (
-                    <div key={i} className="h-12 rounded-lg border border-border card-bg" style={{ flex: w }} />
-                  ))}
-                </div>
-              </div>
-            </div>
+            <ThemeSelector
+              currentTheme={theme}
+              onChange={setTheme}
+              customColors={customColors}
+              onCustomColorsChange={setCustomColors}
+            />
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3">
               <Sparkles className="w-4 h-4 text-primary shrink-0" />
               <p className="text-xs text-muted-foreground">
-                This theme will be embedded in your exported HTML file — choose what fits your brand!
+                The chosen theme is embedded in your exported HTML — switch to <strong>Preview</strong> to see how it looks!
               </p>
             </div>
           </div>
