@@ -49,6 +49,14 @@ const themeCSS: Record<Theme, string> = {
     }
     body { background: var(--bg); color: var(--fg); font-family: Inter, system-ui, sans-serif; }
   `,
+  sunset: `
+    :root {
+      --bg: #1a0a08; --fg: #fde0c0; --card: #261410; --primary: #f97316;
+      --muted: #a0633a; --border: #3d1e14; --primary-fg: #1a0a08;
+      --gradient: linear-gradient(135deg, #f97316, #ec4899);
+    }
+    body { background: var(--bg); color: var(--fg); font-family: Inter, system-ui, sans-serif; }
+  `,
 };
 
 const languageColors: Record<string, string> = {
