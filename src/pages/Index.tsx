@@ -841,14 +841,28 @@ export default function Index() {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg gradient-bg text-primary-foreground text-xs font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-foreground text-xs font-semibold hover:border-primary/50 disabled:opacity-70 transition-all"
+            title="Download single HTML file"
           >
             {exporting ? (
-              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
             ) : (
               <Download className="w-3.5 h-3.5" />
             )}
-            Export HTML
+            <span className="hidden sm:inline">HTML</span>
+          </button>
+          <button
+            onClick={handleExportZip}
+            disabled={exportingZip}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg gradient-bg text-primary-foreground text-xs font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow"
+            title="Download ZIP with separate HTML, CSS and JS files (best for GitHub Pages)"
+          >
+            {exportingZip ? (
+              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+            ) : (
+              <FileCode className="w-3.5 h-3.5" />
+            )}
+            <span className="hidden sm:inline">ZIP</span>
           </button>
         </div>
       </nav>
