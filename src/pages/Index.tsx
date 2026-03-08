@@ -275,60 +275,98 @@ export default function Index() {
   if (step === "landing") {
     return (
       <div className={`min-h-screen bg-background ${themeClass} scan-effect`}>
-        <div className="relative min-h-screen flex flex-col">
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-20"
-            style={{ backgroundImage: `url(${heroBg})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
-
-          {/* Nav */}
-          <nav className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border/40">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center">
-                <Terminal className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="font-mono font-bold text-sm text-foreground">DevFolio</span>
+        {/* Nav */}
+        <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 border-b border-border/40 bg-background/80 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center glow">
+              <Terminal className="w-4 h-4 text-primary-foreground" />
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="font-mono font-bold text-sm text-foreground">DevFolio</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-mono transition-colors"
+            >
+              <Github className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">GitHub</span>
+            </a>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono border border-border/40 px-2 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               v2.1.0
             </div>
-          </nav>
+          </div>
+        </nav>
 
-          {/* Hero */}
-          <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center py-20">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-mono mb-8">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-10"
+            style={{ backgroundImage: `url(${heroBg})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
+          {/* Glow orbs */}
+          <div className="absolute top-20 left-1/4 w-64 h-64 rounded-full opacity-10 blur-3xl" style={{ background: "hsl(var(--primary))" }} />
+          <div className="absolute top-32 right-1/4 w-48 h-48 rounded-full opacity-8 blur-3xl" style={{ background: "hsl(var(--accent))" }} />
+
+          <div className="relative z-10 flex flex-col items-center justify-center px-6 text-center pt-20 pb-16">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-mono mb-8 animate-pulse-glow">
               <Sparkles className="w-3.5 h-3.5" />
-              Portfolio in under 1 minute
+              Free · No signup · Works in 60 seconds
             </div>
 
-            <h1 className="text-5xl sm:text-7xl font-black mb-6 leading-tight">
+            <h1 className="text-5xl sm:text-7xl font-black mb-6 leading-tight tracking-tight">
               <span className="text-foreground">Your dev story,</span>
               <br />
               <span className="gradient-text">beautifully told.</span>
             </h1>
 
-            <p className="text-muted-foreground text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">
+            <p className="text-muted-foreground text-lg sm:text-xl max-w-xl mb-4 leading-relaxed">
               Import from GitHub, pick a theme, customize your profile — portfolio ready in{" "}
               <span className="text-primary font-mono font-semibold">60 seconds</span>.
             </p>
 
-            <div className="w-full max-w-lg mb-12 p-6 rounded-2xl border border-border card-bg card-shadow">
+            {/* Social proof line */}
+            <div className="flex items-center gap-4 mb-10 flex-wrap justify-center">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+                <Users className="w-3.5 h-3.5 text-primary" />
+                <span>10,000+ portfolios built</span>
+              </div>
+              <span className="text-border hidden sm:inline">•</span>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+                <Star className="w-3.5 h-3.5 text-primary" />
+                <span>No account needed</span>
+              </div>
+              <span className="text-border hidden sm:inline">•</span>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+                <Shield className="w-3.5 h-3.5 text-primary" />
+                <span>100% private</span>
+              </div>
+            </div>
+
+            {/* Import card */}
+            <div className="w-full max-w-lg mb-10 p-6 rounded-2xl border border-border card-bg card-shadow">
               <div className="flex items-center gap-2 mb-4">
                 <Github className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold text-card-foreground font-mono">
-                  Import GitHub Projects
+                  Start with your GitHub username
                 </span>
               </div>
               <GitHubImport onImport={handleImport} />
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl w-full">
+            {/* How it works steps */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl w-full">
               {steps.map((s, i) => {
                 const Icon = s.icon;
                 return (
-                  <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/40 bg-secondary/20">
+                  <div key={i} className="relative flex flex-col items-center gap-2 p-4 rounded-xl border border-border/40 bg-secondary/20 hover:border-primary/30 hover:bg-secondary/40 transition-all">
+                    <div className="absolute -top-2 -left-1 w-5 h-5 rounded-full gradient-bg flex items-center justify-center text-primary-foreground font-mono font-bold text-[10px]">
+                      {i + 1}
+                    </div>
                     <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center">
                       <Icon className="w-4 h-4 text-primary-foreground" />
                     </div>
@@ -342,6 +380,177 @@ export default function Index() {
             </div>
           </div>
         </div>
+
+        {/* Animated Stats */}
+        <div ref={statsRef} className="border-y border-border bg-secondary/20 py-10">
+          <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-4 gap-6">
+            {[
+              { label: "Portfolios Built", value: 10000, suffix: "+", icon: Users },
+              { label: "GitHub Repos Imported", value: 85000, suffix: "+", icon: Github },
+              { label: "Themes Available", value: 5, suffix: "", icon: Palette },
+              { label: "Seconds to Build", value: 60, suffix: "s", icon: Clock },
+            ].map((stat) => {
+              const Icon = stat.icon;
+              const count = useCounter(stat.value, 1800, statsVisible);
+              return (
+                <div key={stat.label} className="flex flex-col items-center text-center gap-2">
+                  <Icon className="w-5 h-5 text-primary" />
+                  <span className="text-3xl font-black gradient-text font-mono">
+                    {count.toLocaleString()}{stat.suffix}
+                  </span>
+                  <span className="text-xs text-muted-foreground font-mono">{stat.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Features Grid */}
+        <div className="max-w-5xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/40 bg-secondary/30 text-muted-foreground text-xs font-mono mb-4">
+              <Layers className="w-3.5 h-3.5" />
+              Everything you need
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">
+              Built for <span className="gradient-text">developers</span>
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm">
+              Every feature is designed to take your GitHub projects and turn them into a professional portfolio in record time.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {features.map((f) => {
+              const Icon = f.icon;
+              return (
+                <div key={f.title} className={`p-5 rounded-xl border card-bg transition-all hover:-translate-y-1 hover:card-shadow ${f.bg}`}>
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm text-foreground mb-1">{f.title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Theme Showcase */}
+        <div className="border-t border-border bg-secondary/10 py-20">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-3">
+                5 stunning <span className="gradient-text">themes</span>
+              </h2>
+              <p className="text-muted-foreground text-sm">Pick the aesthetic that matches your personality</p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {[
+                { name: "Terminal", colors: ["#22c55e", "#16a34a"], bg: "#0d1117" },
+                { name: "Minimal", colors: ["#3b82f6", "#2563eb"], bg: "#f8fafc" },
+                { name: "Cyberpunk", colors: ["#e040fb", "#f9a825"], bg: "#110a1c" },
+                { name: "Ocean", colors: ["#00bcd4", "#26c6da"], bg: "#0d1e2e" },
+                { name: "Sunset", colors: ["#f97316", "#ec4899"], bg: "#150c05" },
+              ].map((t) => (
+                <div key={t.name} className="rounded-xl border border-border overflow-hidden hover:border-primary/40 transition-all hover:-translate-y-1 cursor-pointer group">
+                  <div className="h-20 relative" style={{ background: t.bg }}>
+                    <div className="absolute inset-0 p-3 flex flex-col gap-1.5">
+                      <div className="h-1.5 w-3/4 rounded-full" style={{ background: t.colors[0] }} />
+                      <div className="h-1 w-1/2 rounded-full opacity-60" style={{ background: t.colors[1] }} />
+                      <div className="mt-auto flex gap-1">
+                        <div className="h-6 w-8 rounded" style={{ background: `${t.colors[0]}33` }} />
+                        <div className="h-6 w-8 rounded" style={{ background: `${t.colors[0]}22` }} />
+                      </div>
+                    </div>
+                    <div className="absolute top-1.5 right-1.5 w-3 h-3 rounded-full" style={{ background: t.colors[0] }} />
+                  </div>
+                  <div className="p-2 bg-card border-t border-border">
+                    <p className="text-[10px] font-mono font-semibold text-center text-card-foreground">{t.name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="max-w-2xl mx-auto px-6 py-20">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-black text-foreground mb-2">
+              Common <span className="gradient-text">questions</span>
+            </h2>
+            <p className="text-muted-foreground text-sm">Everything you need to know before getting started</p>
+          </div>
+
+          <div className="space-y-2">
+            {faqs.map((faq, i) => (
+              <div key={i} className="rounded-xl border border-border card-bg overflow-hidden">
+                <button
+                  className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-secondary/30 transition-colors"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  <span className="text-sm font-semibold text-foreground">{faq.q}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="border-t border-border bg-secondary/10 py-16">
+          <div className="max-w-2xl mx-auto px-6 text-center">
+            <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-6 glow animate-float">
+              <Terminal className="w-7 h-7 text-primary-foreground" />
+            </div>
+            <h2 className="text-3xl font-black text-foreground mb-3">
+              Ready to build your <span className="gradient-text">portfolio</span>?
+            </h2>
+            <p className="text-muted-foreground text-sm mb-8">
+              It takes under 60 seconds. No account, no credit card, no setup.
+            </p>
+            <button
+              onClick={() => document.querySelector("input")?.focus()}
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl gradient-bg text-primary-foreground font-semibold text-sm hover:opacity-90 transition-all glow"
+            >
+              <Github className="w-4 h-4" />
+              Get Started Free
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="border-t border-border py-6 px-6">
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded gradient-bg flex items-center justify-center">
+                <Terminal className="w-3 h-3 text-primary-foreground" />
+              </div>
+              <span className="font-mono text-xs text-muted-foreground">DevFolio — built for developers</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono">
+              <span>Free forever</span>
+              <span>•</span>
+              <span>No tracking</span>
+              <span>•</span>
+              <span>Open source friendly</span>
+            </div>
+          </div>
+        </footer>
       </div>
     );
   }
