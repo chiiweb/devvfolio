@@ -1057,22 +1057,24 @@ export default function Index() {
           <div className="space-y-6 animate-fade-up">
             {/* Profile hero */}
             <div className="rounded-2xl border border-border card-bg overflow-hidden card-shadow">
-              <div className="h-28 gradient-bg relative overflow-hidden">
+              {/* Banner */}
+              <div className="h-32 gradient-bg relative overflow-hidden">
                 <div className="absolute inset-0 dot-grid opacity-20" />
               </div>
-              <div className="px-6 pb-6 -mt-12">
-                <div className="flex items-end gap-4">
+              {/* Profile row — avatar sits half over the banner */}
+              <div className="px-6 pt-0 pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-10">
                   <img
                     src={portfolio.avatar}
                     alt={portfolio.name}
-                    className="w-20 h-20 rounded-2xl border-4 border-background object-cover glow shrink-0"
+                    className="w-20 h-20 rounded-2xl border-4 border-card object-cover glow shrink-0 bg-background"
                   />
-                  <div className="pb-1 min-w-0">
-                    <h1 className="text-xl font-black text-foreground truncate">{portfolio.name}</h1>
-                    <p className="font-mono text-xs text-muted-foreground">@{portfolio.username}</p>
+                  <div className="sm:pb-1 min-w-0 flex-1">
+                    <h1 className="text-2xl font-black text-foreground leading-tight">{portfolio.name}</h1>
+                    <p className="font-mono text-xs text-muted-foreground mt-0.5">@{portfolio.username}</p>
                   </div>
                 </div>
-                <div className="mt-3">
+                <div className="mt-4">
                   {portfolio.bio && (
                     <p className="text-sm text-foreground/80 max-w-lg leading-relaxed">{portfolio.bio}</p>
                   )}
