@@ -138,6 +138,29 @@
     --shadow-glow: 0 0 20px hsl(195 100% 50% / 0.3);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.4);
   }
+
+  .theme-sunset {
+    --background: 20 25% 6%;
+    --foreground: 30 80% 88%;
+    --card: 20 22% 10%;
+    --card-foreground: 30 70% 90%;
+    --primary: 25 95% 58%;
+    --primary-foreground: 20 25% 6%;
+    --secondary: 20 18% 16%;
+    --secondary-foreground: 30 60% 78%;
+    --muted: 20 18% 13%;
+    --muted-foreground: 20 12% 55%;
+    --accent: 340 85% 60%;
+    --accent-foreground: 20 25% 6%;
+    --border: 20 18% 18%;
+    --input: 20 18% 18%;
+    --ring: 25 95% 58%;
+    --gradient-hero: linear-gradient(135deg, hsl(20,25%,6%) 0%, hsl(25,30%,9%) 50%, hsl(20,25%,6%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(20,22%,10%), hsl(20,18%,13%));
+    --gradient-primary: linear-gradient(135deg, hsl(25,95%,58%), hsl(340,85%,60%));
+    --shadow-glow: 0 0 20px hsl(25 95% 58% / 0.35);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.45);
+  }
 }
 
 @layer base {

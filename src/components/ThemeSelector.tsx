@@ -1,6 +1,6 @@
-import { Monitor, Sun, Zap, Waves } from "lucide-react";
+import { Monitor, Sun, Zap, Waves, Sunset } from "lucide-react";
 
-export type Theme = "default" | "minimal" | "cyberpunk" | "ocean";
+export type Theme = "default" | "minimal" | "cyberpunk" | "ocean" | "sunset";
 
 interface ThemeSelectorProps {
   currentTheme: Theme;
@@ -36,11 +36,18 @@ const themes = [
     description: "Deep blue & teal",
     preview: ["#071520", "#06b6d4", "#34d399"],
   },
+  {
+    id: "sunset" as Theme,
+    name: "Sunset",
+    icon: Sunset,
+    description: "Warm orange & rose",
+    preview: ["#1a0a08", "#f97316", "#ec4899"],
+  },
 ];
 
 export function ThemeSelector({ currentTheme, onChange }: ThemeSelectorProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
       {themes.map((theme) => {
         const Icon = theme.icon;
         const isActive = currentTheme === theme.id;

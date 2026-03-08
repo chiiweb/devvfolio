@@ -9,11 +9,12 @@ interface PortfolioData {
   location: string;
   website: string;
   twitter: string;
+  linkedin: string;
   pinnedRepos: number[];
   skills: string[];
 }
 
-type Theme = "default" | "minimal" | "cyberpunk" | "ocean";
+type Theme = "default" | "minimal" | "cyberpunk" | "ocean" | "sunset";
 
 const themeCSS: Record<Theme, string> = {
   default: `
@@ -45,6 +46,14 @@ const themeCSS: Record<Theme, string> = {
       --bg: #071520; --fg: #b0e0f5; --card: #0d2030; --primary: #06b6d4;
       --muted: #4b8fa6; --border: #0f2d40; --primary-fg: #071520;
       --gradient: linear-gradient(135deg, #06b6d4, #34d399);
+    }
+    body { background: var(--bg); color: var(--fg); font-family: Inter, system-ui, sans-serif; }
+  `,
+  sunset: `
+    :root {
+      --bg: #1a0a08; --fg: #fde0c0; --card: #261410; --primary: #f97316;
+      --muted: #a0633a; --border: #3d1e14; --primary-fg: #1a0a08;
+      --gradient: linear-gradient(135deg, #f97316, #ec4899);
     }
     body { background: var(--bg); color: var(--fg); font-family: Inter, system-ui, sans-serif; }
   `,
@@ -94,6 +103,7 @@ export function generatePortfolioHTML(data: PortfolioData, theme: Theme): string
   const socialLinks = [
     data.website ? `<a href="${data.website}" target="_blank">🔗 Website</a>` : "",
     data.twitter ? `<a href="https://twitter.com/${data.twitter.replace("@", "")}" target="_blank">🐦 Twitter</a>` : "",
+    data.linkedin ? `<a href="${data.linkedin.startsWith("http") ? data.linkedin : "https://" + data.linkedin}" target="_blank">💼 LinkedIn</a>` : "",
     `<a href="https://github.com/${data.username}" target="_blank">🐙 GitHub</a>`,
   ].filter(Boolean).join("");
 
