@@ -334,6 +334,19 @@ export default function Index() {
     }
   }, [portfolio, theme, customColors]);
 
+  const handleExportZip = useCallback(async () => {
+    if (!portfolio) return;
+    setExportingZip(true);
+    try {
+      await downloadPortfolioZip({ ...portfolio, linkedin: portfolio.linkedin || "" }, theme, customColors);
+      toast({ title: "✅ ZIP exported!", description: `${portfolio.username}-portfolio.zip downloaded with index.html, style.css & script.js.` });
+    } catch {
+      toast({ title: "ZIP export failed", description: "Something went wrong.", variant: "destructive" });
+    } finally {
+      setTimeout(() => setExportingZip(false), 800);
+    }
+  }, [portfolio, theme, customColors]);
+
   const handleCopyLink = useCallback(() => {
     if (!portfolio) return;
     const shareData = {
