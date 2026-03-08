@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
-import { ThemeSelector, Theme } from "@/components/ThemeSelector";
+import { ThemeSelector, Theme, CustomThemeColors } from "@/components/ThemeSelector";
 import { GitHubImport } from "@/components/GitHubImport";
 import { ProjectCard, GitHubRepo } from "@/components/ProjectCard";
 import { ProfileEditor } from "@/components/ProfileEditor";
@@ -214,6 +214,10 @@ function useScrollReveal() {
 export default function Index() {
   const [step, setStep] = useState<Step>("landing");
   const [theme, setTheme] = useState<Theme>("default");
+  const [customColors, setCustomColors] = useState<CustomThemeColors>({
+    bg: "#0d1117", fg: "#c9d1d9", primary: "#58a6ff",
+    accent: "#79c0ff", card: "#161b22", border: "#30363d",
+  });
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [activeTab, setActiveTab] = useState<"github" | "theme" | "profile" | "skills" | "preview">("github");
   const [copied, setCopied] = useState(false);
@@ -241,11 +245,59 @@ export default function Index() {
   // Scroll reveal
   useScrollReveal();
 
+  // Inject custom theme CSS variables into document root
+  useEffect(() => {
+    if (theme !== "custom") return;
+    const hexToHsl = (hex: string): string => {
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+    };
+    const root = document.documentElement;
+    if (customColors.bg.length === 7) root.style.setProperty("--background", hexToHsl(customColors.bg));
+    if (customColors.fg.length === 7) root.style.setProperty("--foreground", hexToHsl(customColors.fg));
+    if (customColors.primary.length === 7) {
+      root.style.setProperty("--primary", hexToHsl(customColors.primary));
+      root.style.setProperty("--ring", hexToHsl(customColors.primary));
+    }
+    if (customColors.accent.length === 7) root.style.setProperty("--accent", hexToHsl(customColors.accent));
+    if (customColors.card.length === 7) {
+      root.style.setProperty("--card", hexToHsl(customColors.card));
+      root.style.setProperty("--muted", hexToHsl(customColors.card));
+    }
+    if (customColors.border.length === 7) {
+      root.style.setProperty("--border", hexToHsl(customColors.border));
+      root.style.setProperty("--input", hexToHsl(customColors.border));
+    }
+    return () => {
+      ["--background","--foreground","--primary","--ring","--accent","--card","--muted","--border","--input"]
+        .forEach((v) => root.style.removeProperty(v));
+    };
+  }, [theme, customColors]);
+
   const themeClass =
     theme === "default" ? "" :
     theme === "minimal" ? "theme-minimal" :
     theme === "cyberpunk" ? "theme-cyberpunk" :
     theme === "sunset" ? "theme-sunset" :
+    theme === "forest" ? "theme-forest" :
+    theme === "arctic" ? "theme-arctic" :
+    theme === "midnight" ? "theme-midnight" :
+    theme === "volcano" ? "theme-volcano" :
+    theme === "custom" ? "" :
     "theme-ocean";
 
   const handleImport = (
@@ -272,14 +324,14 @@ export default function Index() {
     if (!portfolio) return;
     setExporting(true);
     try {
-      downloadPortfolio({ ...portfolio, linkedin: portfolio.linkedin || "" }, theme);
+      downloadPortfolio({ ...portfolio, linkedin: portfolio.linkedin || "" }, theme, customColors);
       toast({ title: "✅ Portfolio exported!", description: `${portfolio.username}-portfolio.html downloaded.` });
     } catch {
       toast({ title: "Export failed", description: "Something went wrong.", variant: "destructive" });
     } finally {
       setTimeout(() => setExporting(false), 800);
     }
-  }, [portfolio, theme]);
+  }, [portfolio, theme, customColors]);
 
   const handleCopyLink = useCallback(() => {
     if (!portfolio) return;
@@ -934,30 +986,18 @@ export default function Index() {
           <div className="space-y-6 max-w-2xl animate-fade-up">
             <div>
               <h2 className="font-bold text-lg text-foreground">Choose a Theme</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Your entire portfolio changes instantly — 5 themes available</p>
+              <p className="text-xs text-muted-foreground mt-0.5">9 preset themes + build your own custom theme</p>
             </div>
-            <ThemeSelector currentTheme={theme} onChange={setTheme} />
-            <div className="p-5 rounded-xl border border-border card-bg">
-              <p className="text-xs font-mono text-muted-foreground mb-3">// Live preview</p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl gradient-bg animate-pulse-glow shrink-0" />
-                  <div className="space-y-1.5 flex-1">
-                    <div className="h-2.5 w-3/4 rounded-full gradient-bg opacity-80" />
-                    <div className="h-1.5 w-1/2 rounded-full bg-muted" />
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-3">
-                  {[0.6, 0.4, 0.3].map((w, i) => (
-                    <div key={i} className="h-12 rounded-lg border border-border card-bg" style={{ flex: w }} />
-                  ))}
-                </div>
-              </div>
-            </div>
+            <ThemeSelector
+              currentTheme={theme}
+              onChange={setTheme}
+              customColors={customColors}
+              onCustomColorsChange={setCustomColors}
+            />
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3">
               <Sparkles className="w-4 h-4 text-primary shrink-0" />
               <p className="text-xs text-muted-foreground">
-                This theme will be embedded in your exported HTML file — choose what fits your brand!
+                The chosen theme is embedded in your exported HTML — switch to <strong>Preview</strong> to see how it looks!
               </p>
             </div>
           </div>
@@ -1017,22 +1057,24 @@ export default function Index() {
           <div className="space-y-6 animate-fade-up">
             {/* Profile hero */}
             <div className="rounded-2xl border border-border card-bg overflow-hidden card-shadow">
-              <div className="h-28 gradient-bg relative overflow-hidden">
+              {/* Banner */}
+              <div className="h-32 gradient-bg relative overflow-hidden">
                 <div className="absolute inset-0 dot-grid opacity-20" />
               </div>
-              <div className="px-6 pb-6 -mt-12">
-                <div className="flex items-end gap-4">
+              {/* Profile row — avatar sits half over the banner */}
+              <div className="px-6 pt-0 pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-10">
                   <img
                     src={portfolio.avatar}
                     alt={portfolio.name}
-                    className="w-20 h-20 rounded-2xl border-4 border-background object-cover glow shrink-0"
+                    className="w-20 h-20 rounded-2xl border-4 border-card object-cover glow shrink-0 bg-background"
                   />
-                  <div className="pb-1 min-w-0">
-                    <h1 className="text-xl font-black text-foreground truncate">{portfolio.name}</h1>
-                    <p className="font-mono text-xs text-muted-foreground">@{portfolio.username}</p>
+                  <div className="sm:pb-1 min-w-0 flex-1">
+                    <h1 className="text-2xl font-black text-foreground leading-tight">{portfolio.name}</h1>
+                    <p className="font-mono text-xs text-muted-foreground mt-0.5">@{portfolio.username}</p>
                   </div>
                 </div>
-                <div className="mt-3">
+                <div className="mt-4">
                   {portfolio.bio && (
                     <p className="text-sm text-foreground/80 max-w-lg leading-relaxed">{portfolio.bio}</p>
                   )}
