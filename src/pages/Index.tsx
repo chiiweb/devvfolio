@@ -222,6 +222,7 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<"github" | "theme" | "profile" | "skills" | "preview">("github");
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingZip, setExportingZip] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
