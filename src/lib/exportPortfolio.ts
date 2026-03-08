@@ -103,6 +103,7 @@ export function generatePortfolioHTML(data: PortfolioData, theme: Theme): string
   const socialLinks = [
     data.website ? `<a href="${data.website}" target="_blank">🔗 Website</a>` : "",
     data.twitter ? `<a href="https://twitter.com/${data.twitter.replace("@", "")}" target="_blank">🐦 Twitter</a>` : "",
+    data.linkedin ? `<a href="${data.linkedin.startsWith("http") ? data.linkedin : "https://" + data.linkedin}" target="_blank">💼 LinkedIn</a>` : "",
     `<a href="https://github.com/${data.username}" target="_blank">🐙 GitHub</a>`,
   ].filter(Boolean).join("");
 
