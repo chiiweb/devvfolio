@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { ThemeSelector, Theme } from "@/components/ThemeSelector";
 import { GitHubImport } from "@/components/GitHubImport";
@@ -24,6 +24,11 @@ import {
   Link,
   Copy,
   Check,
+  Search,
+  SortAsc,
+  GitFork,
+  Filter,
+  Eye,
 } from "lucide-react";
 
 type Step = "landing" | "builder";
@@ -37,13 +42,16 @@ interface PortfolioData {
   location: string;
   website: string;
   twitter: string;
+  linkedin: string;
   pinnedRepos: number[];
   skills: string[];
 }
 
+type SortOption = "stars" | "forks" | "updated" | "name";
+
 const steps = [
   { icon: Github, label: "Import from GitHub", desc: "Auto-fetch all your projects" },
-  { icon: Palette, label: "Pick a theme", desc: "4 stunning designs" },
+  { icon: Palette, label: "Pick a theme", desc: "5 stunning designs" },
   { icon: User, label: "Customize profile", desc: "Edit your info inline" },
   { icon: Download, label: "Export & publish", desc: "Share your portfolio" },
 ];
@@ -56,10 +64,17 @@ export default function Index() {
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
 
+  // Repo filtering state
+  const [repoSearch, setRepoSearch] = useState("");
+  const [repoSort, setRepoSort] = useState<SortOption>("stars");
+  const [langFilter, setLangFilter] = useState<string>("all");
+
   const themeClass =
     theme === "default" ? "" :
     theme === "minimal" ? "theme-minimal" :
-    theme === "cyberpunk" ? "theme-cyberpunk" : "theme-ocean";
+    theme === "cyberpunk" ? "theme-cyberpunk" :
+    theme === "sunset" ? "theme-sunset" :
+    "theme-ocean";
 
   const handleImport = (
     username: string,
@@ -70,7 +85,7 @@ export default function Index() {
   ) => {
     setPortfolio({
       username, repos, avatar, bio, name,
-      location: "", website: "", twitter: "",
+      location: "", website: "", twitter: "", linkedin: "",
       pinnedRepos: [], skills: [],
     });
     setStep("builder");
@@ -85,8 +100,8 @@ export default function Index() {
     if (!portfolio) return;
     setExporting(true);
     try {
-      downloadPortfolio(portfolio, theme);
-      toast({ title: "Portfolio exported!", description: `${portfolio.username}-portfolio.html downloaded.` });
+      downloadPortfolio({ ...portfolio, linkedin: portfolio.linkedin || "" }, theme);
+      toast({ title: "✅ Portfolio exported!", description: `${portfolio.username}-portfolio.html downloaded successfully.` });
     } catch {
       toast({ title: "Export failed", description: "Something went wrong.", variant: "destructive" });
     } finally {
@@ -104,6 +119,7 @@ export default function Index() {
       location: portfolio.location,
       website: portfolio.website,
       twitter: portfolio.twitter,
+      linkedin: portfolio.linkedin,
       skills: portfolio.skills,
       pinnedRepos: portfolio.pinnedRepos,
       theme,
@@ -112,9 +128,44 @@ export default function Index() {
     const url = `${window.location.origin}${window.location.pathname}?share=${encoded}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
-    toast({ title: "Link copied!", description: "Share this link to show your portfolio." });
+    toast({ title: "🔗 Link copied!", description: "Share this link to show your portfolio." });
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Derived: unique languages for filter
+  const uniqueLangs = useMemo(() => {
+    if (!portfolio) return [];
+    const langs = portfolio.repos
+      .map((r) => r.language)
+      .filter((l): l is string => !!l);
+    return Array.from(new Set(langs)).sort();
+  }, [portfolio]);
+
+  // Derived: filtered + sorted repos
+  const filteredRepos = useMemo(() => {
+    if (!portfolio) return [];
+    let list = [...portfolio.repos];
+    if (repoSearch.trim()) {
+      const q = repoSearch.toLowerCase();
+      list = list.filter(
+        (r) =>
+          r.name.toLowerCase().includes(q) ||
+          (r.description || "").toLowerCase().includes(q) ||
+          (r.topics || []).some((t) => t.toLowerCase().includes(q))
+      );
+    }
+    if (langFilter !== "all") {
+      list = list.filter((r) => r.language === langFilter);
+    }
+    list.sort((a, b) => {
+      if (repoSort === "stars") return b.stargazers_count - a.stargazers_count;
+      if (repoSort === "forks") return b.forks_count - a.forks_count;
+      if (repoSort === "updated") return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      if (repoSort === "name") return a.name.localeCompare(b.name);
+      return 0;
+    });
+    return list;
+  }, [portfolio, repoSearch, repoSort, langFilter]);
 
   if (step === "landing") {
     return (
@@ -136,7 +187,7 @@ export default function Index() {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              v2.0.0
+              v2.1.0
             </div>
           </nav>
 
@@ -180,9 +231,6 @@ export default function Index() {
                       <p className="text-xs font-semibold text-foreground">{s.label}</p>
                       <p className="text-[10px] text-muted-foreground mt-0.5">{s.desc}</p>
                     </div>
-                    {i < steps.length - 1 && (
-                      <ChevronRight className="w-3 h-3 text-muted-foreground hidden sm:block absolute right-0" />
-                    )}
                   </div>
                 );
               })}
@@ -206,6 +254,9 @@ export default function Index() {
   const featuredRepos = portfolio.pinnedRepos.length > 0
     ? portfolio.repos.filter((r) => portfolio.pinnedRepos.includes(r.id))
     : portfolio.repos.slice(0, 6);
+
+  const totalStars = portfolio.repos.reduce((s, r) => s + r.stargazers_count, 0);
+  const totalForks = portfolio.repos.reduce((s, r) => s + r.forks_count, 0);
 
   return (
     <div className={`min-h-screen bg-background ${themeClass}`}>
@@ -288,6 +339,9 @@ export default function Index() {
                   {portfolio.skills.length}
                 </span>
               )}
+              {t.id === "preview" && (
+                <Eye className="w-3 h-3 ml-0.5 opacity-60" />
+              )}
             </button>
           );
         })}
@@ -299,41 +353,108 @@ export default function Index() {
         {/* GitHub Projects tab */}
         {activeTab === "github" && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <h2 className="font-bold text-lg text-foreground">Your Projects</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {portfolio.repos.length} repos imported from @{portfolio.username}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
-                  <Star className="w-3.5 h-3.5 text-primary" />
-                  {portfolio.repos.reduce((sum, r) => sum + r.stargazers_count, 0)} total stars
-                </div>
-                <button
-                  onClick={() => setActiveTab("skills")}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono border border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-all"
-                >
-                  <Pin className="w-3.5 h-3.5" />
-                  Pin featured
-                </button>
-              </div>
+            {/* Header stats */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Repositories", value: portfolio.repos.length, icon: Github },
+                { label: "Total Stars", value: totalStars, icon: Star },
+                { label: "Total Forks", value: totalForks, icon: GitFork },
+              ].map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={stat.label} className="rounded-xl border border-border card-bg p-3 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-black gradient-text leading-none">{stat.value}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{stat.label}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+
+            {/* Search + filter bar */}
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="relative flex-1 min-w-48">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <input
+                  value={repoSearch}
+                  onChange={(e) => setRepoSearch(e.target.value)}
+                  placeholder="Search repos..."
+                  className="w-full pl-8 pr-3 py-2 rounded-lg bg-secondary border border-border text-foreground placeholder:text-muted-foreground font-mono text-xs focus:outline-none focus:border-primary transition-all"
+                />
+              </div>
+
+              {/* Language filter */}
+              <div className="flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                <select
+                  value={langFilter}
+                  onChange={(e) => setLangFilter(e.target.value)}
+                  className="px-2 py-2 rounded-lg bg-secondary border border-border text-foreground font-mono text-xs focus:outline-none focus:border-primary transition-all cursor-pointer"
+                >
+                  <option value="all">All Languages</option>
+                  {uniqueLangs.map((l) => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort */}
+              <div className="flex items-center gap-1">
+                <SortAsc className="w-3.5 h-3.5 text-muted-foreground" />
+                <select
+                  value={repoSort}
+                  onChange={(e) => setRepoSort(e.target.value as SortOption)}
+                  className="px-2 py-2 rounded-lg bg-secondary border border-border text-foreground font-mono text-xs focus:outline-none focus:border-primary transition-all cursor-pointer"
+                >
+                  <option value="stars">Most Stars</option>
+                  <option value="forks">Most Forks</option>
+                  <option value="updated">Recently Updated</option>
+                  <option value="name">Name A–Z</option>
+                </select>
+              </div>
+
+              <button
+                onClick={() => setActiveTab("skills")}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-mono border border-border hover:border-primary/50 text-muted-foreground hover:text-primary transition-all"
+              >
+                <Pin className="w-3.5 h-3.5" />
+                Pin featured
+              </button>
+            </div>
+
+            {/* Results count */}
+            {(repoSearch || langFilter !== "all") && (
+              <p className="text-xs text-muted-foreground font-mono">
+                Showing <span className="text-primary font-semibold">{filteredRepos.length}</span> of {portfolio.repos.length} repos
+                {repoSearch && <> matching "<span className="text-foreground">{repoSearch}</span>"</>}
+                {langFilter !== "all" && <> in <span className="text-foreground">{langFilter}</span></>}
+              </p>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {portfolio.repos.map((repo) => (
-                <ProjectCard key={repo.id} repo={repo} />
-              ))}
+              {filteredRepos.length > 0 ? (
+                filteredRepos.map((repo) => (
+                  <ProjectCard key={repo.id} repo={repo} />
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-12 text-muted-foreground text-sm font-mono">
+                  No repos match your search.
+                </div>
+              )}
             </div>
           </div>
         )}
 
         {/* Theme tab */}
         {activeTab === "theme" && (
-          <div className="space-y-6 max-w-xl">
+          <div className="space-y-6 max-w-2xl">
             <div>
               <h2 className="font-bold text-lg text-foreground">Choose a Theme</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Your entire portfolio changes instantly</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Your entire portfolio changes instantly — 5 themes available</p>
             </div>
             <ThemeSelector currentTheme={theme} onChange={setTheme} />
             <div className="p-4 rounded-xl border border-border card-bg">
@@ -364,6 +485,7 @@ export default function Index() {
               location={portfolio.location}
               website={portfolio.website}
               twitter={portfolio.twitter}
+              linkedin={portfolio.linkedin}
               onUpdate={handleProfileUpdate}
             />
           </div>
@@ -419,10 +541,13 @@ export default function Index() {
                       <span className="text-xs text-muted-foreground">📍 {portfolio.location}</span>
                     )}
                     {portfolio.website && (
-                      <a href={portfolio.website} className="text-xs text-primary hover:underline">🔗 {portfolio.website}</a>
+                      <a href={portfolio.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">🔗 {portfolio.website}</a>
                     )}
                     {portfolio.twitter && (
-                      <a href={`https://twitter.com/${portfolio.twitter.replace("@","")}`} className="text-xs text-primary hover:underline">🐦 {portfolio.twitter}</a>
+                      <a href={`https://twitter.com/${portfolio.twitter.replace("@","")}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">🐦 {portfolio.twitter}</a>
+                    )}
+                    {portfolio.linkedin && (
+                      <a href={portfolio.linkedin.startsWith("http") ? portfolio.linkedin : `https://${portfolio.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">💼 LinkedIn</a>
                     )}
                   </div>
                 </div>
@@ -433,8 +558,8 @@ export default function Index() {
             <div className="grid grid-cols-3 gap-4">
               {[
                 { label: "Repositories", value: portfolio.repos.length },
-                { label: "Total Stars", value: portfolio.repos.reduce((s, r) => s + r.stargazers_count, 0) },
-                { label: "Total Forks", value: portfolio.repos.reduce((s, r) => s + r.forks_count, 0) },
+                { label: "Total Stars", value: totalStars },
+                { label: "Total Forks", value: totalForks },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-xl border border-border card-bg p-4 text-center card-shadow">
                   <p className="text-2xl font-black gradient-text">{stat.value}</p>
@@ -485,20 +610,24 @@ export default function Index() {
 
             {/* Export CTA */}
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center space-y-4">
-              <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl gradient-bg flex items-center justify-center mx-auto glow">
                 <Download className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
                 <h3 className="font-bold text-foreground">Ready to publish?</h3>
-                <p className="text-xs text-muted-foreground mt-1">Download a self-contained HTML file you can host anywhere.</p>
+                <p className="text-xs text-muted-foreground mt-1">Download a self-contained HTML file you can host anywhere — Netlify, GitHub Pages, Vercel.</p>
               </div>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-3 flex-wrap">
                 <button
                   onClick={handleExport}
                   disabled={exporting}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl gradient-bg text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow"
                 >
-                  <Download className="w-4 h-4" />
+                  {exporting ? (
+                    <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
                   Download HTML
                 </button>
                 <button
