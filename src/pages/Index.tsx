@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
-import { ThemeSelector, Theme } from "@/components/ThemeSelector";
+import { ThemeSelector, Theme, CustomThemeColors } from "@/components/ThemeSelector";
 import { GitHubImport } from "@/components/GitHubImport";
 import { ProjectCard, GitHubRepo } from "@/components/ProjectCard";
 import { ProfileEditor } from "@/components/ProfileEditor";
