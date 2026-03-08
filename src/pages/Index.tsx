@@ -1198,21 +1198,35 @@ export default function Index() {
               <div>
                 <h3 className="font-bold text-foreground text-lg">Ready to publish?</h3>
                 <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-relaxed">
-                  Download a self-contained HTML file you can host anywhere — Netlify, GitHub Pages, Vercel.
+                  Choose your export format — single HTML file or a ZIP with separate HTML, CSS &amp; JS for GitHub Pages.
                 </p>
               </div>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <button
                   onClick={handleExport}
                   disabled={exporting}
-                  className="flex items-center gap-2 px-7 py-3 rounded-xl gradient-bg text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow hover:scale-105"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-foreground text-sm font-semibold hover:border-primary/50 disabled:opacity-70 transition-all hover:scale-105"
+                  title="Single self-contained HTML file"
                 >
                   {exporting ? (
-                    <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                    <span className="w-4 h-4 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
                   ) : (
                     <Download className="w-4 h-4" />
                   )}
                   Download HTML
+                </button>
+                <button
+                  onClick={handleExportZip}
+                  disabled={exportingZip}
+                  className="flex items-center gap-2 px-7 py-3 rounded-xl gradient-bg text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-70 transition-all glow hover:scale-105"
+                  title="ZIP with index.html + style.css + script.js — ideal for GitHub Pages"
+                >
+                  {exportingZip ? (
+                    <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
+                  ) : (
+                    <FileCode className="w-4 h-4" />
+                  )}
+                  Download ZIP (GitHub Pages)
                 </button>
                 <button
                   onClick={handleCopyLink}
