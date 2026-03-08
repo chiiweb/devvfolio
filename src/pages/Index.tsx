@@ -63,6 +63,91 @@ const steps = [
   { icon: Download, label: "Export & publish", desc: "Share your portfolio" },
 ];
 
+const features = [
+  {
+    icon: Zap,
+    title: "60-Second Setup",
+    desc: "Enter your GitHub username and your entire project history is imported instantly — no manual entry.",
+    color: "text-yellow-400",
+    bg: "bg-yellow-400/10 border-yellow-400/20",
+  },
+  {
+    icon: Palette,
+    title: "5 Unique Themes",
+    desc: "Terminal dark, minimal light, cyberpunk, ocean depth, and sunset — each pixel-perfect and ready to ship.",
+    color: "text-primary",
+    bg: "bg-primary/10 border-primary/20",
+  },
+  {
+    icon: Globe,
+    title: "Self-Contained Export",
+    desc: "One HTML file with all styles baked in. Host on Netlify, GitHub Pages, or any static host for free.",
+    color: "text-blue-400",
+    bg: "bg-blue-400/10 border-blue-400/20",
+  },
+  {
+    icon: Shield,
+    title: "No Account Needed",
+    desc: "Zero sign-ups, zero data stored. Everything runs in your browser — your data stays yours.",
+    color: "text-green-400",
+    bg: "bg-green-400/10 border-green-400/20",
+  },
+  {
+    icon: Layers,
+    title: "Skills & Tech Stack",
+    desc: "Showcase your languages and frameworks with a beautiful tag cloud in your exported portfolio.",
+    color: "text-purple-400",
+    bg: "bg-purple-400/10 border-purple-400/20",
+  },
+  {
+    icon: Pin,
+    title: "Pin Featured Work",
+    desc: "Curate up to 6 repositories to appear front-and-center. Let your best work lead the conversation.",
+    color: "text-orange-400",
+    bg: "bg-orange-400/10 border-orange-400/20",
+  },
+];
+
+const faqs = [
+  {
+    q: "Do I need a GitHub account?",
+    a: "You just need a public GitHub username. We read your public profile and repos via the GitHub API — no OAuth, no tokens.",
+  },
+  {
+    q: "Is my data stored anywhere?",
+    a: "No. Everything runs entirely in your browser. No backend, no analytics on your data, nothing stored.",
+  },
+  {
+    q: "Can I host the exported file for free?",
+    a: "Absolutely. The exported HTML is fully self-contained. Drop it on Netlify Drop, GitHub Pages, or any static hosting — many offer free tiers.",
+  },
+  {
+    q: "How many repos are imported?",
+    a: "We fetch up to 12 of your most-starred public repositories, automatically filtering out forks for a cleaner result.",
+  },
+  {
+    q: "Can I edit the generated HTML?",
+    a: "Yes! The exported file is clean, readable HTML/CSS with no framework dependencies. Edit it in any text editor.",
+  },
+];
+
+// Animated counter hook
+function useCounter(target: number, duration = 1500, start = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number | null = null;
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      setCount(Math.floor(progress * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration, start]);
+  return count;
+}
+
 export default function Index() {
   const [step, setStep] = useState<Step>("landing");
   const [theme, setTheme] = useState<Theme>("default");
