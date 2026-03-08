@@ -382,28 +382,7 @@ export default function Index() {
         </div>
 
         {/* Animated Stats */}
-        <div ref={statsRef} className="border-y border-border bg-secondary/20 py-10">
-          <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 sm:grid-cols-4 gap-6">
-            {[
-              { label: "Portfolios Built", value: 10000, suffix: "+", icon: Users },
-              { label: "GitHub Repos Imported", value: 85000, suffix: "+", icon: Github },
-              { label: "Themes Available", value: 5, suffix: "", icon: Palette },
-              { label: "Seconds to Build", value: 60, suffix: "s", icon: Clock },
-            ].map((stat) => {
-              const Icon = stat.icon;
-              const count = useCounter(stat.value, 1800, statsVisible);
-              return (
-                <div key={stat.label} className="flex flex-col items-center text-center gap-2">
-                  <Icon className="w-5 h-5 text-primary" />
-                  <span className="text-3xl font-black gradient-text font-mono">
-                    {count.toLocaleString()}{stat.suffix}
-                  </span>
-                  <span className="text-xs text-muted-foreground font-mono">{stat.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <StatsBanner statsVisible={statsVisible} statsRef={statsRef} />
 
         {/* Features Grid */}
         <div className="max-w-5xl mx-auto px-6 py-20">
