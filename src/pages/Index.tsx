@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { ThemeSelector, Theme } from "@/components/ThemeSelector";
 import { GitHubImport } from "@/components/GitHubImport";
@@ -18,7 +18,6 @@ import {
   Star,
   Code2,
   Terminal,
-  ChevronRight,
   Sparkles,
   Pin,
   Link,
@@ -29,6 +28,14 @@ import {
   GitFork,
   Filter,
   Eye,
+  Zap,
+  Globe,
+  Shield,
+  ChevronDown,
+  ExternalLink,
+  Users,
+  Clock,
+  Layers,
 } from "lucide-react";
 
 type Step = "landing" | "builder";
