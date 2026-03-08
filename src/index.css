@@ -163,6 +163,102 @@
     --shadow-glow: 0 0 20px hsl(25 95% 58% / 0.35);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.45);
   }
+
+  /* Forest — earthy greens & amber */
+  .theme-forest {
+    --background: 130 30% 5%;
+    --foreground: 120 60% 88%;
+    --card: 130 25% 9%;
+    --card-foreground: 120 50% 90%;
+    --primary: 142 60% 55%;
+    --primary-foreground: 130 30% 5%;
+    --secondary: 130 20% 15%;
+    --secondary-foreground: 120 40% 75%;
+    --muted: 130 20% 12%;
+    --muted-foreground: 130 10% 52%;
+    --accent: 45 95% 60%;
+    --accent-foreground: 130 30% 5%;
+    --border: 130 18% 17%;
+    --input: 130 18% 17%;
+    --ring: 142 60% 55%;
+    --gradient-hero: linear-gradient(135deg, hsl(130,30%,5%) 0%, hsl(135,35%,8%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(130,25%,9%), hsl(130,20%,12%));
+    --gradient-primary: linear-gradient(135deg, hsl(142,60%,55%), hsl(45,95%,60%));
+    --shadow-glow: 0 0 20px hsl(142 60% 55% / 0.3);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.4);
+  }
+
+  /* Arctic — icy white & cool blue */
+  .theme-arctic {
+    --background: 210 50% 97%;
+    --foreground: 215 35% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 35% 12%;
+    --primary: 200 95% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 92%;
+    --secondary-foreground: 215 30% 20%;
+    --muted: 210 40% 94%;
+    --muted-foreground: 210 15% 50%;
+    --accent: 230 90% 62%;
+    --accent-foreground: 0 0% 100%;
+    --border: 210 30% 85%;
+    --input: 210 30% 85%;
+    --ring: 200 95% 48%;
+    --gradient-hero: linear-gradient(135deg, hsl(210,50%,97%) 0%, hsl(215,60%,94%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0,0%,100%), hsl(210,40%,96%));
+    --gradient-primary: linear-gradient(135deg, hsl(200,95%,48%), hsl(230,90%,62%));
+    --shadow-glow: 0 0 20px hsl(200 95% 48% / 0.25);
+    --shadow-card: 0 4px 24px hsl(215 35% 12% / 0.08);
+  }
+
+  /* Midnight — deep indigo & violet */
+  .theme-midnight {
+    --background: 245 25% 5%;
+    --foreground: 240 80% 90%;
+    --card: 245 20% 9%;
+    --card-foreground: 240 60% 92%;
+    --primary: 240 80% 68%;
+    --primary-foreground: 245 25% 5%;
+    --secondary: 245 15% 16%;
+    --secondary-foreground: 240 50% 78%;
+    --muted: 245 15% 12%;
+    --muted-foreground: 245 10% 54%;
+    --accent: 275 80% 68%;
+    --accent-foreground: 245 25% 5%;
+    --border: 245 15% 18%;
+    --input: 245 15% 18%;
+    --ring: 240 80% 68%;
+    --gradient-hero: linear-gradient(135deg, hsl(245,25%,5%) 0%, hsl(250,30%,8%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(245,20%,9%), hsl(245,15%,12%));
+    --gradient-primary: linear-gradient(135deg, hsl(240,80%,68%), hsl(275,80%,68%));
+    --shadow-glow: 0 0 20px hsl(240 80% 68% / 0.35);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.5);
+  }
+
+  /* Volcano — crimson & molten gold */
+  .theme-volcano {
+    --background: 0 30% 5%;
+    --foreground: 15 80% 90%;
+    --card: 0 25% 9%;
+    --card-foreground: 15 60% 92%;
+    --primary: 0 85% 58%;
+    --primary-foreground: 0 30% 5%;
+    --secondary: 0 18% 16%;
+    --secondary-foreground: 15 50% 78%;
+    --muted: 0 18% 12%;
+    --muted-foreground: 0 10% 54%;
+    --accent: 38 95% 55%;
+    --accent-foreground: 0 30% 5%;
+    --border: 0 18% 18%;
+    --input: 0 18% 18%;
+    --ring: 0 85% 58%;
+    --gradient-hero: linear-gradient(135deg, hsl(0,30%,5%) 0%, hsl(5,35%,8%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0,25%,9%), hsl(0,18%,12%));
+    --gradient-primary: linear-gradient(135deg, hsl(0,85%,58%), hsl(38,95%,55%));
+    --shadow-glow: 0 0 20px hsl(0 85% 58% / 0.35);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.5);
+  }
 }
 
 @layer base {

@@ -324,14 +324,14 @@ export default function Index() {
     if (!portfolio) return;
     setExporting(true);
     try {
-      downloadPortfolio({ ...portfolio, linkedin: portfolio.linkedin || "" }, theme);
+      downloadPortfolio({ ...portfolio, linkedin: portfolio.linkedin || "" }, theme, customColors);
       toast({ title: "✅ Portfolio exported!", description: `${portfolio.username}-portfolio.html downloaded.` });
     } catch {
       toast({ title: "Export failed", description: "Something went wrong.", variant: "destructive" });
     } finally {
       setTimeout(() => setExporting(false), 800);
     }
-  }, [portfolio, theme]);
+  }, [portfolio, theme, customColors]);
 
   const handleCopyLink = useCallback(() => {
     if (!portfolio) return;
