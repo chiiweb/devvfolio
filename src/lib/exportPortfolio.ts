@@ -1,4 +1,5 @@
 import { GitHubRepo } from "@/components/ProjectCard";
+import type { Theme, CustomThemeColors } from "@/components/ThemeSelector";
 
 interface PortfolioData {
   username: string;
