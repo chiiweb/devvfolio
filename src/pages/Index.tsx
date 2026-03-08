@@ -1161,7 +1161,7 @@ export default function Index() {
                   {portfolio.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="px-3 py-1 rounded-full text-xs font-mono font-semibold border border-primary/30 bg-primary/8 text-primary"
+                      className="px-3 py-1 rounded-full text-xs font-mono font-semibold border border-primary/30 bg-primary/10 text-primary"
                     >
                       {skill}
                     </span>
