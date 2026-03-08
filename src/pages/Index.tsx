@@ -6,7 +6,7 @@ import { ProjectCard, GitHubRepo } from "@/components/ProjectCard";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { SkillsEditor } from "@/components/SkillsEditor";
 import { RepoPinSelector } from "@/components/RepoPinSelector";
-import { downloadPortfolio } from "@/lib/exportPortfolio";
+import { downloadPortfolio, downloadPortfolioZip } from "@/lib/exportPortfolio";
 import { toast } from "@/hooks/use-toast";
 import {
   Github,
