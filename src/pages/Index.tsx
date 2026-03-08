@@ -155,11 +155,24 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<"github" | "theme" | "profile" | "skills" | "preview">("github");
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   // Repo filtering state
   const [repoSearch, setRepoSearch] = useState("");
   const [repoSort, setRepoSort] = useState<SortOption>("stars");
   const [langFilter, setLangFilter] = useState<string>("all");
+
+  // Intersection observer for stats animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setStatsVisible(true); },
+      { threshold: 0.3 }
+    );
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const themeClass =
     theme === "default" ? "" :
