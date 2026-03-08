@@ -9,11 +9,12 @@ interface PortfolioData {
   location: string;
   website: string;
   twitter: string;
+  linkedin: string;
   pinnedRepos: number[];
   skills: string[];
 }
 
-type Theme = "default" | "minimal" | "cyberpunk" | "ocean";
+type Theme = "default" | "minimal" | "cyberpunk" | "ocean" | "sunset";
 
 const themeCSS: Record<Theme, string> = {
   default: `
