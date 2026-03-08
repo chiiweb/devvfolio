@@ -193,7 +193,7 @@ function StatsBanner({ statsVisible, statsRef }: { statsVisible: boolean; statsR
   );
 }
 
-// Scroll reveal hook
+// Scroll reveal hook — empty deps so it only runs once on mount
 function useScrollReveal() {
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -208,7 +208,7 @@ function useScrollReveal() {
     const els = document.querySelectorAll(".reveal");
     els.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  });
+  }, []); // ✅ only once
 }
 
 export default function Index() {
